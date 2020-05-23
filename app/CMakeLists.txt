@@ -1,0 +1,3 @@
+add_executable(AESCrackme_executable main.cpp)
+target_link_libraries(AESCrackme_executable PRIVATE AESCrackme_library)
+target_compile_features(AESCrackme_executable PUBLIC cxx_std_17)

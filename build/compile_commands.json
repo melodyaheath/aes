@@ -1,0 +1,19 @@
+[
+{
+  "directory": "/home/melody/code/c++/aes/build",
+  "command": "/usr/bin/g++   -I../src/../includes  -g   -std=c++17 -o src/CMakeFiles/AESCrackme_library.dir/aes.cpp.o -c /home/melody/code/c++/aes/src/aes.cpp",
+  "file": "/home/melody/code/c++/aes/src/aes.cpp"
+},
+
+{
+  "directory": "/home/melody/code/c++/aes/build",
+  "command": "/usr/bin/g++   -I../src/../includes  -g   -std=c++17 -o src/CMakeFiles/AESCrackme_library.dir/lib.cpp.o -c /home/melody/code/c++/aes/src/lib.cpp",
+  "file": "/home/melody/code/c++/aes/src/lib.cpp"
+},
+
+{
+  "directory": "/home/melody/code/c++/aes/build",
+  "command": "/usr/bin/g++   -I../src/../includes  -g   -std=c++17 -o app/CMakeFiles/AESCrackme_executable.dir/main.cpp.o -c /home/melody/code/c++/aes/app/main.cpp",
+  "file": "/home/melody/code/c++/aes/app/main.cpp"
+}
+]
