@@ -41,19 +41,21 @@ private:
     };
     
 public:
-    shared_ptr<vector<u8>> state = make_shared<vector<u8>>(16);
-    
+    shared_ptr<vector<u8>> _state = make_shared<vector<u8>>(16);
+    shared_ptr<vector<u8>> _key = make_shared<vector<u8>>(16);
 
     Aes(AesKeyWidth);
     ~Aes() = default;
-    u32 operation_g(size_t, u32);
-    u32 circular_byte_left_shift(u32);
-    u32 byte_substitution(u32);
-    u32 add_round_constant(size_t, u32);
-    std::array<u32, 4> generate_next_state(size_t, std::array<u32, 4>);
-    std::array<u32, 4> add_round_key_to_state(std::array<u32, 4>, std::array<u32, 4>);
-    std::array<u8, 4> mix_column(std::array<u8, 4>);
-    std::array<u32, 4> mix_all_columns(std::array<u32, 4>);
+    const vector<u8> operation_g(const vector<u8> &, const size_t, const size_t, const size_t);
+    void circular_byte_left_shift(vector<u8> &, const size_t, const size_t);
+    void byte_substitution(vector<u8> &, const size_t , const size_t);
+    void add_round_constant(u8&, const size_t);
+    const vector<u8> generate_next_roundkey(const size_t, const vector<u8> &);
+    void add_round_key_to_state(const vector<u8>&, vector<u8>&);
+    void mix_columns(vector<u8> &);
+    void shift_rows(vector<u8> &);
+    // std::array<u8, 4> mix_column(std::array<u8, 4>);
+    // std::array<u32, 4> mix_all_columns(std::array<u32, 4>);
     
 };
 
