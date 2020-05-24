@@ -2,7 +2,6 @@
 #include <cstddef>
 #include <array>
 #include <vector>
-#include <memory>
 
 namespace crypto {
 
@@ -10,8 +9,6 @@ using u8 = uint8_t;
 using u32 = uint32_t;
 using std::array;
 using std::vector;
-using std::shared_ptr;
-using std::make_shared;
 using std::size_t;
 
 enum class AesKeyWidth {
@@ -41,21 +38,17 @@ private:
     };
     
 public:
-    shared_ptr<vector<u8>> _state = make_shared<vector<u8>>(16);
-    shared_ptr<vector<u8>> _key = make_shared<vector<u8>>(16);
-
-    Aes(AesKeyWidth);
+    Aes(AesKeyWidth width);
     ~Aes() = default;
-    const vector<u8> operation_g(const vector<u8> &, const size_t, const size_t, const size_t);
-    void circular_byte_left_shift(vector<u8> &, const size_t, const size_t);
-    void byte_substitution(vector<u8> &, const size_t , const size_t);
-    void add_round_constant(u8&, const size_t);
-    const vector<u8> generate_next_roundkey(const size_t, const vector<u8> &);
-    void add_round_key_to_state(const vector<u8>&, vector<u8>&);
-    void mix_columns(vector<u8> &);
-    void shift_rows(vector<u8> &);
-    // std::array<u8, 4> mix_column(std::array<u8, 4>);
-    // std::array<u32, 4> mix_all_columns(std::array<u32, 4>);
+    const vector<u8> operation_g(const vector<u8> &state, const size_t start, const size_t end, const size_t round);
+    void circular_byte_left_shift(vector<u8> &state, const size_t start, const size_t end);
+    void byte_substitution(vector<u8> &state, const size_t start, const size_t end);
+    void add_round_constant(u8& element, const size_t round);
+    const vector<u8> generate_next_roundkey(const size_t round, const vector<u8> &state);
+    void add_round_key_to_state(const vector<u8> &round_key, vector<u8>& state);
+    void mix_columns(vector<u8> &state);
+    void shift_rows(vector<u8> &state);
+    const vector<u8> encrypt(const vector<u8>& key, const vector<u8>& plaintext);
     
 };
 

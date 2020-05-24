@@ -2,8 +2,6 @@
 #include <assert.h>
 #include <cstddef>
 
-#include <iostream>
-
 namespace crypto {
 
 using std::move;
@@ -25,13 +23,6 @@ void Aes::circular_byte_left_shift(vector<u8> &state, const size_t start, const 
 
 void Aes::shift_rows(vector<u8> &state) {
     vector<u8> state_copy;
-
-    // static constexpr array<size_t, 16> POSITIONS = {
-    //      0,  4,  8, 12,
-    //      5,  9, 13,  1,
-    //     10, 14,  2,  6,
-    //     15,  3,  7,  11      
-    // };
 
     static constexpr array<size_t, 16> POSITIONS = {
          0,  5, 10, 15,
@@ -106,23 +97,10 @@ void Aes::add_round_key_to_state(const vector<u8> &round_key, vector<u8>& state)
         counter++;
     }
 }
-
-// COLUMNS ARE (0,1,2,3), (4,5,6,7), (8,9,10,11), (12,13,14,15)
-// ROWS ARE   (0, 4, 8,  12), (1, 5, 9,  13), (2, 6, 10, 14), (3, 7, 11, 15)
-// 00 3C 6E 47 
-// 1F 4E 22 74 
-// 0E 08 1B 31 
-// 54 59 0B 1A
-
-/*
-    first row * first column is BA
-    second row * first column 75
-    first row * second column is 84
-
-*/
 /* 
     Taken from Wikipedia, I wish I understood this better. 
     https://en.wikipedia.org/wiki/Rijndael_MixColumns#Implementation_example
+    Refer to the C# example.
 */
 u8 g256m(u8 a, u8 b) { 
     u8 p = 0;
@@ -140,18 +118,6 @@ u8 g256m(u8 a, u8 b) {
     return p;
 }
 
-// 0x0 = row 0 * column 0
-// 0x1 = row 1 * column 0
-// 0x2 = row 2 * column 0
-// 0x3 = row 3 * column 0
-// 1x0 = row 0 * column 1
-// 1x1 = row 1 * column 1
-// 1x2 = row 2 * column 1
-// 1x3 = row 3 * column 1
-
-
-
-
 void Aes::mix_columns(vector<u8> &state) {
     static constexpr std::array<u8, 16> COLUMN_CONSTANTS = {
         2, 3, 1, 1,
@@ -165,24 +131,11 @@ void Aes::mix_columns(vector<u8> &state) {
 
     for ( auto state_col = 0; state_col < 4; state_col++) {
         for (auto constants_row = 0; constants_row < 4; constants_row++) {
-        
-            // std::cout 
-            //       << "next_state[" << constants_row << "+" << state_col*4 << "=" << constants_row+state_col*4 << "] = "
-            //       << std::dec << (uint)COLUMN_CONSTANTS[constants_row*4+0] << " * "
-            //       << std::hex << (uint)state[state_col*4+0]             << " ^ "
-            //       << std::dec << (uint)COLUMN_CONSTANTS[constants_row*4+1] << " * "
-            //       << std::hex << (uint)state[state_col*4+1]             << " ^ "
-            //       << std::dec << (uint)COLUMN_CONSTANTS[constants_row*4+2] << " * "
-            //       << std::hex << (uint)state[state_col*4+2]             << " ^ "
-            //       << std::dec << (uint)COLUMN_CONSTANTS[constants_row*4+3] << " * "
-            //       << std::hex << (uint)state[state_col*4+3];
             next_state[constants_row+state_col*4] = 
                 g256m(COLUMN_CONSTANTS[constants_row*4+0], state[state_col*4+0] ) ^
                 g256m(COLUMN_CONSTANTS[constants_row*4+1], state[state_col*4+1] ) ^
                 g256m(COLUMN_CONSTANTS[constants_row*4+2], state[state_col*4+2] ) ^
                 g256m(COLUMN_CONSTANTS[constants_row*4+3], state[state_col*4+3] );
-
-            // std::cout << " = " << std::hex << (uint)next_state[constants_row+state_col*4] << std::dec << "\n";
         }
     }
 
@@ -191,6 +144,31 @@ void Aes::mix_columns(vector<u8> &state) {
     state = move(next_state);
 }
 
+const vector<u8> Aes::encrypt(const vector<u8>& _key, const vector<u8>& _message) {
+    assert(_key.size() == _message.size() && _key.size() == 16);
+
+    vector<u8> message(_message.cbegin(), _message.cend());
+    vector<u8> key(_key.cbegin(), _key.cend());
+
+    add_round_key_to_state(key, message);
+
+
+    for ( auto round = 0; round < 9; round++) {
+        byte_substitution(message, 0, message.size() - 1);
+        shift_rows(message);
+        mix_columns(message);
+        key = generate_next_roundkey(round, key);
+        add_round_key_to_state(key, message);
+    }
+
+    byte_substitution(message, 0, message.size() - 1);
+    shift_rows(message);
+
+    const vector<u8> first_round_key = generate_next_roundkey(9, key);
+    add_round_key_to_state(first_round_key, message);
+
+    return message;
+}
 
 Aes::Aes(AesKeyWidth width) {
     assert(width == AesKeyWidth::AES_128 || width == AesKeyWidth::AES_256);
