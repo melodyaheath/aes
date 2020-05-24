@@ -6,7 +6,8 @@ namespace crypto {
 
 using std::move;
 
-void Aes::circular_byte_left_shift(vector<u8> &state, const size_t start, const size_t end) {
+template<unsigned short key_width>
+void Aes<key_width>::circular_byte_left_shift(vector<u8> &state, const size_t start, const size_t end) {
     assert(state.size() > end);
     assert(end > start);
  
@@ -21,7 +22,8 @@ void Aes::circular_byte_left_shift(vector<u8> &state, const size_t start, const 
     *last_pointer  = first_value;
 }
 
-void Aes::shift_rows(vector<u8> &state) {
+template<unsigned short key_width>
+void Aes<key_width>::shift_rows(vector<u8> &state) {
     vector<u8> state_copy;
 
     static constexpr array<size_t, 16> POSITIONS = {
@@ -38,7 +40,8 @@ void Aes::shift_rows(vector<u8> &state) {
     state = move(state_copy);
 }
 
-void Aes::byte_substitution(vector<u8> &state, const size_t start, const size_t end) {
+template<unsigned short key_width>
+void Aes<key_width>::byte_substitution(vector<u8> &state, const size_t start, const size_t end) {
     assert(state.size() > end);
     assert(end > start);
     
@@ -47,7 +50,8 @@ void Aes::byte_substitution(vector<u8> &state, const size_t start, const size_t 
     }
 }
 
-void Aes::add_round_constant(u8& element, const size_t round) {
+template<unsigned short key_width>
+void Aes<key_width>::add_round_constant(u8& element, const size_t round) {
     static constexpr std::array<u8, 10> round_counts = {
         0x01, 0x02, 0x04, 0x08, 
         0x10, 0x20, 0x40, 0x80, 
@@ -55,7 +59,9 @@ void Aes::add_round_constant(u8& element, const size_t round) {
     };
     element ^= round_counts.at(round);
 }
-const vector<u8> Aes::operation_g(const vector<u8> &state, const size_t start, const size_t end, const size_t round) {
+
+template<unsigned short key_width>
+const vector<u8> Aes<key_width>::operation_g(const vector<u8> &state, const size_t start, const size_t end, const size_t round) {
     assert(state.size() > end);
     assert(end > start);
 
@@ -67,7 +73,8 @@ const vector<u8> Aes::operation_g(const vector<u8> &state, const size_t start, c
     return g_values;
 }
 
-const vector<u8> Aes::generate_next_roundkey(const size_t round, const vector<u8> &state) {
+template<unsigned short key_width>
+const vector<u8> Aes<key_width>::generate_next_roundkey(const size_t round, const vector<u8> &state) {
     auto counter = 0;
     auto next_round_key = vector<u8>(state.size(), 0);
     auto g_values = operation_g(state, 12, 15, round);
@@ -84,7 +91,9 @@ const vector<u8> Aes::generate_next_roundkey(const size_t round, const vector<u8
 
     return next_round_key;
 }
-void Aes::add_round_key_to_state(const vector<u8> &round_key, vector<u8>& state) {
+
+template<unsigned short key_width>
+void Aes<key_width>::add_round_key_to_state(const vector<u8> &round_key, vector<u8>& state) {
     assert(state.size() == round_key.size());
     
     auto counter = 0;
@@ -118,7 +127,8 @@ u8 g256m(u8 a, u8 b) {
     return p;
 }
 
-void Aes::mix_columns(vector<u8> &state) {
+template<unsigned short key_width>
+void Aes<key_width>::mix_columns(vector<u8> &state) {
     static constexpr std::array<u8, 16> COLUMN_CONSTANTS = {
         2, 3, 1, 1,
         1, 2, 3, 1,
@@ -144,7 +154,8 @@ void Aes::mix_columns(vector<u8> &state) {
     state = move(next_state);
 }
 
-const vector<u8> Aes::encrypt(const vector<u8>& _key, const vector<u8>& _message) {
+template<unsigned short key_width>
+const vector<u8> Aes<key_width>::encrypt(const vector<u8>& _key, const vector<u8>& _message) {
     assert(_key.size() == _message.size() && _key.size() == 16);
 
     vector<u8> message(_message.cbegin(), _message.cend());
@@ -170,8 +181,5 @@ const vector<u8> Aes::encrypt(const vector<u8>& _key, const vector<u8>& _message
     return message;
 }
 
-Aes::Aes(AesKeyWidth width) {
-    assert(width == AesKeyWidth::AES_128 || width == AesKeyWidth::AES_256);
-}
-
+template class Aes<128>;
 } /* namespace crypto */

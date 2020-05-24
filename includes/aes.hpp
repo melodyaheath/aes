@@ -11,11 +11,8 @@ using std::array;
 using std::vector;
 using std::size_t;
 
-enum class AesKeyWidth {
-    AES_128 = 128,
-    AES_256 = 256
-};
 
+template<unsigned short key_width> 
 class Aes {
 private:
     static constexpr array<u8, 256> SBOX = {
@@ -38,8 +35,11 @@ private:
     };
     
 public:
-    Aes(AesKeyWidth width);
+    Aes() = default;
+    Aes(Aes&& other) = default;
+    Aes(const Aes &other) = delete;
     ~Aes() = default;
+    
     const vector<u8> operation_g(const vector<u8> &state, const size_t start, const size_t end, const size_t round);
     void circular_byte_left_shift(vector<u8> &state, const size_t start, const size_t end);
     void byte_substitution(vector<u8> &state, const size_t start, const size_t end);

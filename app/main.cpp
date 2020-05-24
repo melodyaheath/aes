@@ -7,7 +7,7 @@ using namespace std;
 using namespace crypto;
 
 
-auto aes = new Aes(AesKeyWidth::AES_128);
+auto aes = new Aes<128>();
 
 void print_vlist(vector<u8>& vector, string seperator) {
     for (auto it = vector.cbegin(); it != vector.cend(); it++) {
