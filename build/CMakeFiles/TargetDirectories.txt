@@ -1,8 +1,0 @@
-/home/melody/code/c++/aes/build/CMakeFiles/rebuild_cache.dir
-/home/melody/code/c++/aes/build/CMakeFiles/edit_cache.dir
-/home/melody/code/c++/aes/build/src/CMakeFiles/rebuild_cache.dir
-/home/melody/code/c++/aes/build/src/CMakeFiles/edit_cache.dir
-/home/melody/code/c++/aes/build/src/CMakeFiles/AESCrackme_library.dir
-/home/melody/code/c++/aes/build/app/CMakeFiles/rebuild_cache.dir
-/home/melody/code/c++/aes/build/app/CMakeFiles/edit_cache.dir
-/home/melody/code/c++/aes/build/app/CMakeFiles/AESCrackme_executable.dir
