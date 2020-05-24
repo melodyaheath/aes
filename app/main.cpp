@@ -112,49 +112,19 @@ void test_mix_columns() {
     assert(tested == expected);
 }
 
-void test_full_round() {
-    vector<u8> message =     { 0x54, 0x77, 0x6F, 0x20, 0x4F, 0x6E, 0x65, 0x20, 0x4E, 0x69, 0x6E, 0x65, 0x20, 0x54, 0x77, 0x6F };
-    vector<u8> key = { 0x54, 0x68, 0x61, 0x74, 0x73, 0x20, 0x6D, 0x79, 0x20, 0x4B, 0x75, 0x6E, 0x67, 0x20, 0x46, 0x75 };
-    
-
-    aes->add_round_key_to_state(key, message);
-
-    cout << "\n[" << __FUNCTION__ << "] " <<   "Add round key     :   ";
-    print_vlist(message, " ");
-
-    aes->byte_substitution(message, 0, message.size() - 1);
-
-    cout << "\n[" << __FUNCTION__ << "] " <<   "Byte substitution :   ";
-    print_vlist(message, " ");
-
-    aes->shift_rows(message);
-
-    cout << "\n[" << __FUNCTION__ << "] " <<   "Shift rows        :   ";
-    print_vlist(message, " ");
-
-
-    aes->mix_columns(message);
-
-    cout << "\n[" << __FUNCTION__ << "] " <<   "Mix columns       :   ";
-    print_vlist(message, " ");
-
-    vector<u8> first_round_key = aes->generate_next_roundkey(0, key);
-    aes->add_round_key_to_state(first_round_key, message);
-
-    cout << "\n[" << __FUNCTION__ << "] " <<   "Add round key     :   ";
-    print_vlist(message, " ");
-
-}
 
 void test_full_cycle() {
     vector<u8> message =     { 0x54, 0x77, 0x6F, 0x20, 0x4F, 0x6E, 0x65, 0x20, 0x4E, 0x69, 0x6E, 0x65, 0x20, 0x54, 0x77, 0x6F };
     vector<u8> key = { 0x54, 0x68, 0x61, 0x74, 0x73, 0x20, 0x6D, 0x79, 0x20, 0x4B, 0x75, 0x6E, 0x67, 0x20, 0x46, 0x75 };
-    
-    vector<u8> result = aes->encrypt(key, message);
+    vector<u8> expected = {0x29, 0xc3, 0x50, 0x5f, 0x57, 0x14, 0x20, 0xf6, 0x40, 0x22, 0x99, 0xb3, 0x1a, 0x2, 0xd7, 0x3a};
+    vector<u8> tested = aes->encrypt(key, message);
 
-    cout << "\n[" << __FUNCTION__ << "] " <<   "Final output      :   ";
-    print_vlist(result, " ");
-    cout <<"\n";
+    cout << "[" << __FUNCTION__ << "] " << "Tested:   ";
+    print_vlist(tested, " ");
+    cout << "\n[" << __FUNCTION__ << "] " << "Expected: ";
+    print_vlist(expected, " ");
+    cout << "\n";
+    assert(tested == expected);
 
 }
 
@@ -168,6 +138,5 @@ int main(int argc, char** argv) {
     test_generate_next_roundkey();
     test_apply_round_to_state();
     test_mix_columns();
-    test_full_round();
     test_full_cycle();
 }
